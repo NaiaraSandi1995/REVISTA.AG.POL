@@ -45,8 +45,6 @@ table(BASEQUAL_QUANTI$P50Q)
 #142
 
 
-
-
 #Casamento homossexual
 mean(BASEQUAL_QUANTI$P49)
 #[1] 8.57
@@ -54,7 +52,7 @@ mean(BASEQUAL_QUANTI$P49)
 table(BASEQUAL_QUANTI$P49Q)
 
 # table(BASEQUAL_QUANTI$P49)
-#   0    1    2    3    4    5    6    7    8    9   10   11   12 
+#   0    1    2    3    4    5    6    7    8    9   10   11   12 #11NS e 12 NR
 # 109    3    8   12   16   71   18   57   95   47 1029   19   16 
 # > table(BASEQUAL_QUANTI$P49Q)
 # 
@@ -65,6 +63,9 @@ table(BASEQUAL_QUANTI$P49Q)
 # Zero 
 # 109 
 
+#Tranformar o 11 e 12 em NA
+BASEQUAL_QUANTI$P49 <- ifelse(BASEQUAL_QUANTI$P49 %in% c(11, 12), 
+                               NA, BASEQUAL_QUANTI$P49)
 
 # Calculando a média da variável quantitativa por categoria
 media_por_categoria <- aggregate(P49 ~ P50, 
@@ -74,11 +75,11 @@ media_por_categoria <- aggregate(P49 ~ P50,
 print(media_por_categoria)
 
 #P50      P49
-# 1   1 8.556338
-# 2   2 8.496726
-# 3   3 8.751634
-# 4   4 8.767442
-# 5   5 9.280000   
+# 1   1 8.514286
+# 2   2 8.455924
+# 3   3 8.706667
+# 4   4 8.506494
+# 5   5 8.837209  
 
 #MÉDIAS ALTAS PARA TODAS AS CATEGORIAS, ou seja, em média democratas 
 #e não democratas são mais tolerantes
@@ -86,23 +87,25 @@ print(media_por_categoria)
 #Recodificando a variável democracia para descritiva####
 #Democrata = 2 #Não democrata = 1,3,4,5
 
-BASEQUAL_QUANTI$Dem <- recode(BASEQUAL_QUANTI$P50,
+BASEQUAL_QUANTI$Dem <- memisc::recode(BASEQUAL_QUANTI$P50,
                               "Democrata" <- 2, 
-                              "Não democrata" <- c(1,3,4,5))
+                              "Não democrata" <- c(1,5),
+                              NA <- c(3,4))
 
 table(BASEQUAL_QUANTI$Dem)
 # Democrata Não democrata 
-# 1069           431 
+#  1069           192 
 
 # Calculando a média da variável quantitativa por categoria
 media_por_categoria <- aggregate(P49 ~ Dem, 
                                  data = BASEQUAL_QUANTI, FUN = mean)
 
+
 #Relação2023####
 media_por_categoria
 #          Dem      P49
-# 1     Democrata 8.496726
-# 2 Não democrata 8.751740
+# 1     Democrata 8.455924
+# 2 Não democrata 8.590164
 
 #LAPOP 
 #homossexuais candidatarem a cargos públicos
@@ -397,14 +400,16 @@ print(doc, target = "tabela2.docx")
 ########
 # Dados da tabela 1
 ano <- c(2014, 2017, 2019, 2023)
-dem_tolerancia_casamento <- c(5.11, 5.81, 5.81, 8.5)
-nao_dem_tolerancia_casamento <- c(5.15, 5.4, 5.33, 8.75)
-media_geral_casamento <- c(5.13, 5.6, 5.57, 8.62)
+dem_tolerancia_casamento <- c(5.11, 5.81, 5.81, 8.45)
+nao_dem_tolerancia_casamento <- c(5.15, 5.4, 5.33, 8.59)
+media_geral_casamento <- c(5.13, 5.6, 5.57, 8.52)
+
+(8.455924+8.590164)/2
 
 # Dados da tabela 2
-dem_tolerancia_candidatura <- c(NA, 6.43, 6.96, 7.03)
-nao_dem_tolerancia_candidatura <- c(NA, 6.29, 6.96, 6.4)
-media_geral_candidatura <- c(NA, 6.36, 6.96, 6.72)
+dem_tolerancia_candidatura <- c( 6.43, 6.96, 7.03,NA)
+nao_dem_tolerancia_candidatura <- c( 6.29, 6.96, 6.4,NA)
+media_geral_candidatura <- c( 6.36, 6.96, 6.72,NA)
 
 # Criar um dataframe combinando as tabelas
 dados <- data.frame(ano, dem_tolerancia_casamento, nao_dem_tolerancia_casamento, media_geral_casamento,
@@ -414,17 +419,16 @@ dados <- data.frame(ano, dem_tolerancia_casamento, nao_dem_tolerancia_casamento,
 library(ggplot2)
 
 
-
 GraMedias <- ggplot(dados, aes(x = ano)) +
-  geom_line(aes(y = dem_tolerancia_casamento, color = "Democrata", linetype = "Tol. Política"), size = 0.6) +
-  geom_line(aes(y = nao_dem_tolerancia_casamento, color = "Não Democrata", linetype = "Tol. Política"), size = 0.6) +
-  geom_line(aes(y = media_geral_casamento, color = "Média Geral", linetype = "Tol. Política"), size = 0.6) +
-  geom_line(aes(y = dem_tolerancia_candidatura, color = "Democrata", linetype = "Tol. Social"), size = 0.8) +
-  geom_line(aes(y = nao_dem_tolerancia_candidatura, color = "Não Democrata", linetype = "Tol. Social"), size = 0.8) +
-  geom_line(aes(y = media_geral_candidatura, color = "Média Geral", linetype = "Tol. Social"), size = 0.8) +
+  geom_line(aes(y = dem_tolerancia_casamento, color = "Democrata", linetype ="Tol. Social" ), size = 0.6) +
+  geom_line(aes(y = nao_dem_tolerancia_casamento, color = "Não Democrata", linetype ="Tol. Social" ), size = 0.6) +
+  geom_line(aes(y = media_geral_casamento, color = "Média Geral", linetype ="Tol. Social" ), size = 0.6) +
+  geom_line(aes(y = dem_tolerancia_candidatura, color = "Democrata", linetype ="Tol. Política"), size = 0.8) +
+  geom_line(aes(y = nao_dem_tolerancia_candidatura, color = "Não Democrata", linetype ="Tol. Política" ), size = 0.8) +
+  geom_line(aes(y = media_geral_candidatura, color = "Média Geral", linetype ="Tol. Política"), size = 0.8) +
   labs(x = "Anos", y = "Média de Tolerância", color = "Grupo", linetype = "Tipo de Linha") +
   scale_color_manual(values = c("Democrata" = "blue", "Não Democrata" = "red", "Média Geral" = "black")) +
-  scale_linetype_manual(values = c("Tol. Política" = "solid", "Tol. Social" = "dashed")) +
+  scale_linetype_manual(values = c("Tol. Social" = "solid", "Tol. Política" = "dashed")) +
   theme_minimal()
 
 
@@ -979,22 +983,19 @@ Mod1.6 <- tab_model(Mod2019.4, wrap.labels = 45,
 #Regr2023####
 #Criação dos modelos de regressão
 
-write_dta(BASEQUAL_QUANTI, "Bra2023.dta")
+save(BASEQUAL_QUANTI, file = "BASEQUAL_QUANTI.RData")
+Bra2023 <- BASEQUAL_QUANTI
 
-summary(Mod2023.1)
 levels(Bra2023$Dem)
 
 table(Bra2023$Dem)
-# 1    2 
-# 1069  431 
-
-table(BASEQUAL_QUANTI$Dem)
 # Democrata Não democrata 
-# 1069           431 
-Bra2023$Dem
+# 1069           192 
+
 
 Bra2023$Dem <- as.factor(Bra2023$Dem)
-Bra2023$Dem <- recode(Bra2023$Dem, 0 <- 2, 1 <- 1)
+Bra2023$Dem <- memisc::recode(Bra2023$Dem, 0 <- "Não democrata", 
+                              1 <- "Democrata")
 
 Mod2023.1 <-  glm(Dem ~ P49, data = Bra2023,
                   family = binomial)
@@ -1068,3 +1069,6 @@ Mod1.4 <- tab_model(Mod2023.2, wrap.labels = 45,
 #INserir os controles no modelo e gerar os tab models
 #Ver se tem um jeito de já gerar as tabelas com valores
 #exponeciados
+
+tab_model(Mod2023.1, Mod2023.2,
+          show.ci = F, show.se = F,  p.style = "stars")
